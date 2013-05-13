@@ -1,4 +1,8 @@
 package jai.ldap;
+import static jai.ldap.utils.LDAPConstants.LDAP_Password;
+import static jai.ldap.utils.LDAPConstants.LDAP_ProviderURL;
+import static jai.ldap.utils.LDAPConstants.LDAP_SearchBase;
+import static jai.ldap.utils.LDAPConstants.LDAP_UserName;
 import static jai.ldap.utils.LDAPConstants.getLdapContext;
 
 import java.util.Hashtable;
@@ -9,7 +13,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
 /**
  * Example code for retrieving a Users Primary Group
  * from Microsoft Active Directory via. its LDAP API
@@ -23,25 +26,20 @@ public class LDAPTest {
      */
     public static void main(String[] args) throws NamingException {
         
-        final String ldapAdServer = "ldap://ad.your-server.com:389";
-        final String ldapSearchBase = "dc=ad,dc=my-domain,dc=com";
-        
-        final String ldapUsername = "myLdapUsername";
-        final String ldapPassword = "myLdapPassword";
-        
-        final String ldapAccountToLookup = "myOtherLdapUsername";
+       
+        final String ldapAccountToLookup = "admin";//"myOtherLDAP_UserName";
         
         
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        if(ldapUsername != null) {
-            env.put(Context.SECURITY_PRINCIPAL, ldapUsername);
+        if(LDAP_UserName != null) {
+            env.put(Context.SECURITY_PRINCIPAL, LDAP_UserName);
         }
-        if(ldapPassword != null) {
-            env.put(Context.SECURITY_CREDENTIALS, ldapPassword);
+        if(LDAP_Password != null) {
+            env.put(Context.SECURITY_CREDENTIALS, LDAP_Password);
         }
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, ldapAdServer);
+        env.put(Context.PROVIDER_URL, LDAP_ProviderURL);
 
         //ensures that objectSID attribute values
         //will be returned as a byte[] instead of a String
@@ -50,27 +48,28 @@ public class LDAPTest {
         // the following is helpful in debugging errors
         //env.put("com.sun.jndi.ldap.trace.ber", System.err);
         
-        DirContext ctx = getLdapContext();
+        DirContext ctx = getLdapContext(env,false);
         
         LDAPTest ldap = new LDAPTest(); 
         //1) lookup the ldap account
-        SearchResult srLdapUser = ldap.findAccountByAccountName(ctx, ldapSearchBase, ldapAccountToLookup);
+        SearchResult srLdapUser = ldap.findAccountByAccountName(ctx, LDAP_SearchBase, ldapAccountToLookup);
+        
         
         //2) get the SID of the users primary group
         String primaryGroupSID = ldap.getPrimaryGroupSID(srLdapUser);
         
         //3) get the users Primary Group
-        String primaryGroupName = ldap.findGroupBySID(ctx, ldapSearchBase, primaryGroupSID);
+        String primaryGroupName = ldap.findGroupBySID(ctx, LDAP_SearchBase, primaryGroupSID);
     }
     
-    public SearchResult findAccountByAccountName(DirContext ctx, String ldapSearchBase, String accountName) throws NamingException {
+    public SearchResult findAccountByAccountName(DirContext ctx, String searchBase, String accountName) throws NamingException {
 
         String searchFilter = "(&(objectClass=user)(sAMAccountName=" + accountName + "))";
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-        NamingEnumeration<SearchResult> results = ctx.search(ldapSearchBase, searchFilter, searchControls);
+        NamingEnumeration<SearchResult> results = ctx.search(searchBase, searchFilter, searchControls);
 
         SearchResult searchResult = null;
         if(results.hasMoreElements()) {
@@ -86,14 +85,14 @@ public class LDAPTest {
         return searchResult;
     }
     
-    public String findGroupBySID(DirContext ctx, String ldapSearchBase, String sid) throws NamingException {
+    public String findGroupBySID(DirContext ctx, String LDAP_SearchBase, String sid) throws NamingException {
         
         String searchFilter = "(&(objectClass=group)(objectSid=" + sid + "))";
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         
-        NamingEnumeration<SearchResult> results = ctx.search(ldapSearchBase, searchFilter, searchControls);
+        NamingEnumeration<SearchResult> results = ctx.search(LDAP_SearchBase, searchFilter, searchControls);
 
         if(results.hasMoreElements()) {
             SearchResult searchResult = (SearchResult) results.nextElement();

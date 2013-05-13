@@ -17,11 +17,11 @@ public class ldap {
 		Hashtable<String, String> env = new Hashtable<String, String>();
 
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, LDAP_URL);
+		env.put(Context.PROVIDER_URL, LDAP_ProviderURL);
 		try {
 
-			env.put(Context.SECURITY_PRINCIPAL, UserName);
-			env.put(Context.SECURITY_CREDENTIALS, Password);
+			env.put(Context.SECURITY_PRINCIPAL, LDAP_UserName);
+			env.put(Context.SECURITY_CREDENTIALS, LDAP_Password);
 
 			// Specify SSL
 			env.put(Context.SECURITY_PROTOCOL, "ssl");
