@@ -34,19 +34,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link CelsiusToFahrenheit }
-     * 
-     */
-    public CelsiusToFahrenheit createCelsiusToFahrenheit() {
-        return new CelsiusToFahrenheit();
-    }
-
-    /**
      * Create an instance of {@link CelsiusToFahrenheitResponse }
      * 
      */
     public CelsiusToFahrenheitResponse createCelsiusToFahrenheitResponse() {
         return new CelsiusToFahrenheitResponse();
+    }
+
+    /**
+     * Create an instance of {@link CelsiusToFahrenheit }
+     * 
+     */
+    public CelsiusToFahrenheit createCelsiusToFahrenheit() {
+        return new CelsiusToFahrenheit();
     }
 
     /**
